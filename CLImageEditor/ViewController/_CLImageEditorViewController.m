@@ -77,6 +77,10 @@ static const CGFloat kMenuBarHeight = 80.0f;
     [_navigationBar removeFromSuperview];
 }
 
+-(UIImage *)getOriginalImage {
+    return _originalImage;
+}
+
 #pragma mark- Custom initialization
 
 - (void)initNavigationBar
