@@ -23,7 +23,7 @@
 
 - (id)initWithImage:(UIImage*)image;
 
-
+- (void)swapNavigationBarWithEditing:(BOOL)editing;
 - (void)fixZoomScaleWithAnimated:(BOOL)animated;
 - (void)resetZoomScaleWithAnimated:(BOOL)animated;
 
