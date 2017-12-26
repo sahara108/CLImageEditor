@@ -83,7 +83,7 @@ static const CGFloat kMenuBarHeight = 80.0f;
 
 #pragma mark- Custom initialization
 
-- (void)initNavigationBar
+- (UIBarButtonItem*)createDoneButton
 {
     UIBarButtonItem *rightBarButtonItem = nil;
     NSString *doneBtnTitle = [CLImageEditorTheme localizedString:@"CLImageEditor_DoneBtnTitle" withDefault:nil];
@@ -94,14 +94,18 @@ static const CGFloat kMenuBarHeight = 80.0f;
     else{
         rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(pushedFinishBtn:)];
     }
-    
-    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+    return rightBarButtonItem;
+}
+
+- (void)initNavigationBar
+{
+    self.navigationItem.rightBarButtonItem = [self createDoneButton];
     [self.navigationController setNavigationBarHidden:NO animated:NO];
     
     if(_navigationBar==nil){
         UINavigationItem *navigationItem  = [[UINavigationItem alloc] init];
         navigationItem.leftBarButtonItem  = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(pushedCloseBtn:)];
-        navigationItem.rightBarButtonItem = rightBarButtonItem;
+        navigationItem.rightBarButtonItem = [self createDoneButton];
         
         CGFloat dy = ([UIDevice iosVersion]<7) ? 0 : MIN([UIApplication sharedApplication].statusBarFrame.size.height, [UIApplication sharedApplication].statusBarFrame.size.width);
         
@@ -138,6 +142,13 @@ static const CGFloat kMenuBarHeight = 80.0f;
 {
     if(self.menuView==nil){
         UIScrollView *menuScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.width, kMenuBarHeight)];
+        
+        // Adjust for iPhone X
+        if (@available(iOS 11.0, *)) {
+            UIEdgeInsets theInsets = [UIApplication sharedApplication].keyWindow.rootViewController.view.safeAreaInsets;
+            menuScroll.height += theInsets.bottom;
+        }
+        
         menuScroll.top = self.view.height - menuScroll.height;
         menuScroll.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
         menuScroll.showsHorizontalScrollIndicator = NO;
@@ -145,7 +156,7 @@ static const CGFloat kMenuBarHeight = 80.0f;
         
         [self.view addSubview:menuScroll];
         self.menuView = menuScroll;
-        [_CLImageEditorViewController setConstraintsLeading:@0 trailing:@0 top:nil bottom:@0 height:@(kMenuBarHeight) width:nil parent:self.view child:menuScroll peer:nil];
+        [_CLImageEditorViewController setConstraintsLeading:@0 trailing:@0 top:nil bottom:@0 height:@(menuScroll.height) width:nil parent:self.view child:menuScroll peer:nil];
     }
     self.menuView.backgroundColor = [CLImageEditorTheme toolbarColor];
 }
@@ -608,9 +619,7 @@ static const CGFloat kMenuBarHeight = 80.0f;
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 #endif
 {
-    return (_currentTool == nil
-            ? UIInterfaceOrientationMaskAll
-            : (UIInterfaceOrientationMask)[UIApplication sharedApplication].statusBarOrientation);
+    return UIInterfaceOrientationMaskAll;
 }
 
 -(void)viewDidLayoutSubviews
@@ -619,6 +628,11 @@ static const CGFloat kMenuBarHeight = 80.0f;
     [self resetImageViewFrame];
     [self refreshToolSettings];
     [self scrollViewDidZoom:_scrollView];
+}
+
+- (BOOL)prefersStatusBarHidden
+{
+    return [[CLImageEditorTheme theme] statusBarHidden];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
