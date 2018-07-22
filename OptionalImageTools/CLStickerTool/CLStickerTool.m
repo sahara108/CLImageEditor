@@ -87,7 +87,7 @@ static NSString* const kCLStickerToolDeleteIconName = @"deleteIconAssetsName";
     _menuScroll.transform = CGAffineTransformMakeTranslation(0, self.editor.view.height-_menuScroll.top);
     [UIView animateWithDuration:kCLImageToolAnimationDuration
                      animations:^{
-                         _menuScroll.transform = CGAffineTransformIdentity;
+                         self->_menuScroll.transform = CGAffineTransformIdentity;
                      }];
 }
 
@@ -99,10 +99,10 @@ static NSString* const kCLStickerToolDeleteIconName = @"deleteIconAssetsName";
     
     [UIView animateWithDuration:kCLImageToolAnimationDuration
                      animations:^{
-                         _menuScroll.transform = CGAffineTransformMakeTranslation(0, self.editor.view.height-_menuScroll.top);
+                         self->_menuScroll.transform = CGAffineTransformMakeTranslation(0, self.editor.view.height-self->_menuScroll.top);
                      }
                      completion:^(BOOL finished) {
-                         [_menuScroll removeFromSuperview];
+                         [self->_menuScroll removeFromSuperview];
                      }];
 }
 
@@ -111,7 +111,7 @@ static NSString* const kCLStickerToolDeleteIconName = @"deleteIconAssetsName";
     [_CLStickerView setActiveStickerView:nil];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        UIImage *image = [self buildImage:_originalImage];
+        UIImage *image = [self buildImage:self->_originalImage];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             completionBlock(image, nil, nil);
@@ -144,6 +144,7 @@ static NSString* const kCLStickerToolDeleteIconName = @"deleteIconAssetsName";
             CLToolbarMenuItem *view = [CLImageEditorTheme menuItemWithFrame:CGRectMake(x, 0, W, H) target:self action:@selector(tappedStickerPanel:) toolInfo:nil];
             view.iconImage = [image aspectFit:CGSizeMake(50, 50)];
             view.userInfo = @{@"filePath" : filePath};
+            view.iconImageContentMode = UIViewContentModeScaleAspectFit;
             
             [_menuScroll addSubview:view];
             x += W;
@@ -181,8 +182,8 @@ static NSString* const kCLStickerToolDeleteIconName = @"deleteIconAssetsName";
     __block CGFloat scale = 1;
 
     safe_dispatch_sync_main(^{
-        scale = image.size.width / _workingView.width;
-        layer = _workingView.layer;
+        scale = image.size.width / self->_workingView.width;
+        layer = self->_workingView.layer;
     });
     
     UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
